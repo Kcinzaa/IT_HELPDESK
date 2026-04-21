@@ -1,0 +1,95 @@
+/* ==========================================
+   🎨 PREMIUM ENTERPRISE UI
+========================================== */
+@import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --success-color: #4cc9f0;
+    --danger-color: #f72585;
+    --bg-color: #f8f9fa;
+    --sidebar-bg: #111827;
+    --sidebar-hover: #1f2937;
+    --text-main: #334155;
+    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+}
+
+body {
+    font-family: 'Sarabun', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    letter-spacing: 0.2px;
+}
+
+/* 📜 Custom Scrollbar สุดมินิมอล */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* 🗂️ การ์ด (Card) แบบมีมิติ */
+.card-custom {
+    border: none;
+    border-radius: 16px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #ffffff;
+}
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* 📊 สถิติแบบ Gradient */
+.stat-card {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+.stat-card::before {
+    content: "";
+    position: absolute;
+    top: -50%; right: -50%;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+    z-index: -1;
+}
+.bg-gradient-primary { background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%); color: white; }
+.bg-gradient-success { background: linear-gradient(135deg, #2a9d8f 0%, #264653 100%); color: white; }
+.bg-gradient-warning { background: linear-gradient(135deg, #f4a261 0%, #e76f51 100%); color: white; }
+
+/* 📌 แถบ Sidebar */
+.sidebar {
+    background-color: var(--sidebar-bg);
+    box-shadow: 4px 0 10px rgba(0,0,0,0.05);
+}
+.sidebar .nav-link {
+    color: #9ca3af !important;
+    border-radius: 8px;
+    margin-bottom: 4px;
+    transition: all 0.2s ease;
+}
+.sidebar .nav-link:hover {
+    background-color: var(--sidebar-hover);
+    color: #ffffff !important;
+    transform: translateX(5px);
+}
+.sidebar .nav-link.active {
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: #ffffff !important;
+    box-shadow: 0 4px 6px rgba(67, 97, 238, 0.3);
+}
+
+/* 🖱️ ปุ่มกด (Buttons) */
+.btn { border-radius: 8px; font-weight: 500; transition: all 0.2s ease; }
+.btn-primary { background-color: var(--primary-color); border-color: var(--primary-color); }
+.btn-primary:hover { background-color: var(--secondary-color); border-color: var(--secondary-color); box-shadow: 0 4px 10px rgba(67, 97, 238, 0.4); transform: translateY(-2px); }
+
+/* 🏷️ ป้ายสถานะ (Badges) */
+.badge { padding: 0.5em 0.8em; font-weight: 600; border-radius: 6px; letter-spacing: 0.5px; }
+
+/* 🔍 แต่ง DataTables ให้เข้ากับ Bootstrap 5 */
+.dataTables_wrapper .dataTables_paginate .paginate_button { padding: 0 !important; margin: 0 !important; border: none !important; }
+table.dataTable > thead > tr > th { border-bottom: 2px solid #e2e8f0; text-transform: uppercase; font-size: 0.85rem; color: #64748b; }
