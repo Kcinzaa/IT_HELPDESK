@@ -137,6 +137,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <span>รายการทรัพย์สินทั้งหมด</span>
                 </a>
             </li>
+                        <li class="nav-item">
+                <a href="<?php echo BASE_URL; ?>modules/admin/admin_analytics.php" class="nav-link text-white d-flex align-items-center gap-3 px-3 py-2">
+                    <i class="bi bi-graph-up-arrow text-primary me-2"></i>
+                    <span>หน้าแสดงผลสรุป</span>
+                </a>
+            </li>
         <?php endif; ?>
     </ul>
     

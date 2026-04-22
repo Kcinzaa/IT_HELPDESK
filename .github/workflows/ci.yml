@@ -1,0 +1,25 @@
+name: Helpdesk PHP Testing
+
+# หุ่นยนต์จะทำงานทุกครั้งที่มีคนอัปโหลดโค้ด (Push) มาที่เส้นทาง main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    # ติดตั้ง PHP บนเครื่องหุ่นยนต์
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+
+    # สั่งให้หุ่นยนต์ลองเช็คไวยากรณ์ (Syntax) โค้ด PHP ทุกไฟล์ว่ามี Error ไหม
+    - name: Run PHP Syntax Check
+      run: find . -name "*.php" -exec php -l {} \;
