@@ -8,7 +8,9 @@ services:
     ports:
       - "80:80" # เปิดให้เครื่องอื่นเข้าผ่าน IP ได้เลย
     volumes:
-      - ./:/var/www/html/ # เชื่อมโค้ดในเครื่องเราเข้าตู้
+      - ./:/var/www/html/ 
+    # 🌟 เพิ่ม 2 บรรทัดนี้เข้าไปครับ เพื่อติดตั้ง PDO MySQL Driver
+    command: sh -c "docker-php-ext-install pdo pdo_mysql && apache2-foreground"
     networks:
       - helpdesk-net
 
@@ -19,19 +21,18 @@ services:
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword # รหัสผ่าน root
-      MYSQL_DATABASE: helpdesk_db      # ชื่อฐานข้อมูล
+      MYSQL_DATABASE: hospital_helpdesk1      # ชื่อฐานข้อมูล
     ports:
       - "3306:3306"
     networks:
       - helpdesk-net
 
-  # 🛠️ ส่วนที่ 3: ตัวจัดการฐานข้อมูล (เหมือน phpMyAdmin ใน XAMPP)
   phpmyadmin:
-    image: phpmyadmin
+    image: phpmyadmin/phpmyadmin
     container_name: helpdesk-pma
     restart: always
     ports:
-      - "8080:80" # เข้าจัดการ DB ผ่านพอร์ต 8080
+      - "8080:80"
     environment:
       - PMA_ARBITRARY=1
     networks:

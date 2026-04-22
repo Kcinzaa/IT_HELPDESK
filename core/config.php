@@ -7,10 +7,10 @@
 date_default_timezone_set('Asia/Bangkok');
 
 // 2. ตั้งค่า Database
-define('DB_HOST', 'localhost');
+define('DB_HOST', 'db');
 define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'hospital_helpdesk1'); // ใช้ฐานข้อมูลใหม่ที่คุณ Nick สร้าง
+define('DB_PASS', 'rootpassword');
+define('DB_NAME', 'helpdesk_db'); // ใช้ฐานข้อมูลใหม่ที่คุณ Nick สร้าง
 
 // 3. ตั้งค่า URL พื้นฐาน (Base URL)
 // ใช้สำหรับอ้างอิง path รูปภาพหรือไฟล์ CSS ให้ถูกต้องเสมอ
