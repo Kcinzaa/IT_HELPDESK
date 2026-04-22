@@ -1,5 +1,6 @@
 <?php
-require_once 'core/config.php';
+// แทนที่ของเดิม
+require_once __DIR__ . '/core/config.php';
 session_start();
 
 // ถ้ายังไม่ได้ล็อกอิน ให้ไปหน้า Login
@@ -172,6 +173,46 @@ function showHotline() {
         confirmButtonColor: '#0d6efd'
     });
 }
+// ฟังก์ชันดึงข้อมูลแบบไม่รีเฟรชหน้า
+function fetchNewTickets() {
+    // เรียกไปที่ API ที่เราสร้างไว้ (เช็ค Path ให้ถูกตามที่แก้ไปรอบที่แล้วนะครับ)
+    fetch('api/check_new_ticket.php')
+        .then(response => response.json())
+        .then(result => {
+            if (result.status === 'success') {
+                updateDashboard(result.data);
+            }
+        })
+        .catch(error => console.error('เรดาร์ขัดข้อง:', error));
+}
+
+// ฟังก์ชันวาดข้อมูลลงหน้าจอ
+function updateDashboard(tickets) {
+    const container = document.getElementById('ticket-list-container'); // ต้องตั้ง id นี้ให้ตารางงานของคุณ Nick
+    
+    // เคลียร์ของเก่าทิ้งก่อน
+    container.innerHTML = '';
+
+    // วนลูปสร้างการ์ดหรือแถวตารางงานใหม่
+    tickets.forEach(ticket => {
+        const ticketHTML = `
+            <div class="card mb-2 border-left-danger shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold text-danger">งานใหม่! ${ticket.title}</h6>
+                    <small class="text-muted"><i class="bi bi-geo-alt"></i> ${ticket.department}</small>
+                </div>
+            </div>
+        `;
+        // แปะลงไปในหน้าจอ
+        container.insertAdjacentHTML('beforeend', ticketHTML);
+    });
+}
+
+// สั่งให้เรดาร์ทำงานทุกๆ 5 วินาที (5000 มิลลิวินาที)
+setInterval(fetchNewTickets, 5000);
+
+// สั่งทำงานทันทีตอนเปิดหน้าเว็บครั้งแรก
+fetchNewTickets();
 </script>
 
 <?php require_once 'includes/footer.php'; ?>

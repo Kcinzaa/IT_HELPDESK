@@ -56,7 +56,7 @@ require_once '../includes/sidebar.php';
 <div class="kanban-board">
     
     <div class="kanban-col">
-        <div class="kanban-col-header text-danger"><i class="bi bi-circle-fill me-2 small"></i> รอดำเนินการ (<?php echo count($pending); ?>)</div>
+        <div class="kanban-col-header text-danger"><i class="bi bi-circle-fill me-2 small"></i> รอดำเนินการ (<span><?php echo count($pending); ?></span>)</div>
         <div class="kanban-items" id="col-pending" data-status="Pending">
             <?php foreach($pending as $t): ?>
                 <div class="kanban-card card-pending" data-id="<?php echo $t['ticket_id']; ?>">
@@ -65,7 +65,7 @@ require_once '../includes/sidebar.php';
                         <span class="badge bg-light text-dark border"><?php echo $t['category']; ?></span>
                     </div>
                     <h6 class="fw-bold text-dark mb-1"><?php echo htmlspecialchars($t['title']); ?></h6>
-                    <small class="text-muted d-block mb-2"><i class="bi bi-geo-alt me-1"></i> <?php echo $t['dept_name']; ?></small>
+                    <small class="text-muted d-block mb-2"><i class="bi bi-geo-alt me-1"></i> <?php echo htmlspecialchars($t['dept_name']); ?></small>
                     <a href="ticket_detail.php?id=<?php echo $t['ticket_id']; ?>" class="btn btn-sm btn-outline-secondary w-100 mt-2">ดูรายละเอียด</a>
                 </div>
             <?php endforeach; ?>
@@ -73,7 +73,7 @@ require_once '../includes/sidebar.php';
     </div>
 
     <div class="kanban-col">
-        <div class="kanban-col-header text-warning"><i class="bi bi-circle-fill me-2 small"></i> กำลังดำเนินการ (<?php echo count($in_progress); ?>)</div>
+        <div class="kanban-col-header text-warning"><i class="bi bi-circle-fill me-2 small"></i> กำลังดำเนินการ (<span><?php echo count($in_progress); ?></span>)</div>
         <div class="kanban-items" id="col-progress" data-status="In Progress">
             <?php foreach($in_progress as $t): ?>
                 <div class="kanban-card card-progress" data-id="<?php echo $t['ticket_id']; ?>">
@@ -82,7 +82,7 @@ require_once '../includes/sidebar.php';
                         <span class="badge bg-light text-dark border"><?php echo $t['category']; ?></span>
                     </div>
                     <h6 class="fw-bold text-dark mb-1"><?php echo htmlspecialchars($t['title']); ?></h6>
-                    <small class="text-muted d-block mb-2"><i class="bi bi-person me-1"></i> ช่าง: <?php echo $t['it_name'] ?? 'คุณ'; ?></small>
+                    <small class="text-muted d-block mb-2"><i class="bi bi-person me-1"></i> ช่าง: <?php echo htmlspecialchars($t['it_name'] ?? 'คุณ'); ?></small>
                     <a href="ticket_detail.php?id=<?php echo $t['ticket_id']; ?>" class="btn btn-sm btn-outline-secondary w-100 mt-2">ดู/อัปเดตงาน</a>
                 </div>
             <?php endforeach; ?>
@@ -90,7 +90,7 @@ require_once '../includes/sidebar.php';
     </div>
 
     <div class="kanban-col">
-        <div class="kanban-col-header text-success"><i class="bi bi-circle-fill me-2 small"></i> ปิดงานแล้ว (<?php echo count($resolved); ?>)</div>
+        <div class="kanban-col-header text-success"><i class="bi bi-circle-fill me-2 small"></i> ปิดงานแล้ว (<span><?php echo count($resolved); ?></span>)</div>
         <div class="kanban-items" id="col-resolved" data-status="Resolved">
             <?php foreach($resolved as $t): ?>
                 <div class="kanban-card card-resolved" data-id="<?php echo $t['ticket_id']; ?>">
@@ -108,11 +108,13 @@ require_once '../includes/sidebar.php';
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const columns = ['col-pending', 'col-progress', 'col-resolved'];
-    
+
+    // 1. ระบบลากวาง (Drag & Drop)
     columns.forEach(colId => {
         const el = document.getElementById(colId);
         new Sortable(el, {
@@ -120,25 +122,23 @@ document.addEventListener('DOMContentLoaded', function() {
             animation: 150,
             ghostClass: 'sortable-ghost',
             
-            // เมื่อปล่อยเมาส์ (ลากเสร็จ)
             onEnd: function (evt) {
-                const itemEl = evt.item; // การ์ดที่ถูกลาก
-                const toList = evt.to;   // คอลัมน์เป้าหมายที่ถูกปล่อย
+                const itemEl = evt.item;
+                const toList = evt.to;
                 
                 const ticketId = itemEl.getAttribute('data-id');
                 const newStatus = toList.getAttribute('data-status');
                 const oldStatus = evt.from.getAttribute('data-status');
 
-                // ถ้าลากกลับมาที่เดิม ไม่ต้องทำอะไร
                 if (newStatus === oldStatus) return;
 
-                // เปลี่ยนสีแถบด้านซ้ายของการ์ดตามสถานะใหม่ทันที
+                // เปลี่ยนสีขอบการ์ดทันที
                 itemEl.classList.remove('card-pending', 'card-progress', 'card-resolved');
                 if(newStatus === 'Pending') itemEl.classList.add('card-pending');
                 else if(newStatus === 'In Progress') itemEl.classList.add('card-progress');
                 else itemEl.classList.add('card-resolved');
 
-                // 🚀 ยิง API ไปหลังบ้านเพื่ออัปเดตฐานข้อมูล (ใช้ API ตัวที่เราเคยสร้างไว้!)
+                // ส่ง API ไปอัปเดต Database
                 fetch('../api/update_ticket_api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -147,20 +147,92 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        // โชว์แจ้งเตือนเบาๆ มุมจอ
                         Swal.fire({
                             toast: true, position: 'top-end', icon: 'success',
-                            title: `อัปเดตงาน #TK-${ticketId} เป็น ${newStatus} แล้ว`,
+                            title: `อัปเดตงาน #TK-${ticketId} เรียบร้อย`,
                             showConfirmButton: false, timer: 3000
                         });
+                        updateColumnCounts(); // อัปเดตตัวเลขบนหัวคอลัมน์
                     } else {
                         alert('เกิดข้อผิดพลาด: ' + data.message);
-                        window.location.reload(); // ถ้าระบบพัง ให้โหลดหน้าใหม่เพื่อคืนค่า
+                        window.location.reload(); 
                     }
+                })
+                .catch(err => {
+                    console.error("Error updating ticket:", err);
                 });
             }
         });
     });
+
+    // 2. ระบบดึงงานใหม่เข้ากระดานแบบ Real-time
+    function fetchNewTickets() {
+        fetch('../api/get_pending_tickets_api.php') 
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    const container = document.getElementById('col-pending');
+                    
+                    // หา ID ของงานทั้งหมดที่อยู่บนกระดาน "รอดำเนินการ" ตอนนี้
+                    const existingIds = Array.from(container.querySelectorAll('.kanban-card'))
+                                           .map(card => card.getAttribute('data-id'));
+
+                    result.data.forEach(t => {
+                        // เช็คว่างานที่ดึงมาใหม่ มีอยู่บนกระดานหรือยัง ถ้ายังไม่มี ให้สร้างการ์ดใหม่
+                        if (!existingIds.includes(t.ticket_id.toString())) {
+                            const newCard = createCardHTML(t);
+                            container.insertAdjacentHTML('afterbegin', newCard); // ยัดใส่ข้างบนสุด
+                            showNewTicketAlert(t.ticket_id, t.title);
+                        }
+                    });
+                    updateColumnCounts(); // อัปเดตตัวเลข
+                }
+            })
+            .catch(error => console.error('Error fetching new tickets:', error));
+    }
+
+    // ฟังก์ชันสร้างหน้าตาการ์ดใหม่ (ให้ตรงกับ PHP)
+    function createCardHTML(t) {
+        return `
+            <div class="kanban-card card-pending" data-id="${t.ticket_id}">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="fw-bold text-primary">#TK-${t.ticket_id}</span>
+                    <span class="badge bg-light text-dark border">${t.category}</span>
+                </div>
+                <h6 class="fw-bold text-dark mb-1">${escapeHtml(t.title)}</h6>
+                <small class="text-muted d-block mb-2"><i class="bi bi-geo-alt me-1"></i> ${escapeHtml(t.dept_name)}</small>
+                <a href="ticket_detail.php?id=${t.ticket_id}" class="btn btn-sm btn-outline-secondary w-100 mt-2">ดูรายละเอียด</a>
+            </div>
+        `;
+    }
+
+    // ฟังก์ชันนับและอัปเดตตัวเลขบนหัวคอลัมน์
+    function updateColumnCounts() {
+        columns.forEach(colId => {
+            const count = document.getElementById(colId).querySelectorAll('.kanban-card').length;
+            const spanEl = document.querySelector(`#${colId} + span, #${colId}`).previousElementSibling.querySelector('span');
+            if(spanEl) {
+                 spanEl.innerText = count;
+            }
+        });
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // แจ้งเตือนเวลาพยาบาลส่งงานใหม่เข้ามา
+    function showNewTicketAlert(id, title) {
+        Swal.fire({
+            toast: true, position: 'top-end', icon: 'info',
+            title: `🚨 งานใหม่! #TK-${id} : ${title}`,
+            showConfirmButton: false, timer: 5000
+        });
+    }
+
+    // ให้ดึงข้อมูลใหม่ทุกๆ 5 วินาที
+    setInterval(fetchNewTickets, 5000);
 });
 </script>
 
