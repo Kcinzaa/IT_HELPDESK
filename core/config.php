@@ -2,7 +2,9 @@
 // ==========================================
 // ⚙️ SYSTEM CONFIGURATION (ไฟล์ตั้งค่าระบบ)
 // ==========================================
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 // 1. ตั้งค่าโซนเวลา (สำคัญมากสำหรับระบบโรงพยาบาลที่ต้องบันทึกเวลาเป๊ะๆ)
 date_default_timezone_set('Asia/Bangkok');
 
