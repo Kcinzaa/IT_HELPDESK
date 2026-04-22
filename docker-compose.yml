@@ -13,6 +13,9 @@ services:
     command: sh -c "docker-php-ext-install pdo pdo_mysql && apache2-foreground"
     networks:
       - helpdesk-net
+    depends_on:
+      db:
+        condition: service_healthy
 
   # 🗄️ ส่วนที่ 2: ตู้ฐานข้อมูล (MySQL)
   db:
@@ -20,10 +23,13 @@ services:
     container_name: helpdesk-db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword # รหัสผ่าน root
-      MYSQL_DATABASE: hospital_helpdesk1      # ชื่อฐานข้อมูล
-    ports:
-      - "3306:3306"
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: helpdesk_db
+    # 🌟 DevOps Upgrade: ระบบตรวจสุขภาพตู้ DB
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 5
     networks:
       - helpdesk-net
 

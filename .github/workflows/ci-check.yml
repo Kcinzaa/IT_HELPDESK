@@ -1,0 +1,35 @@
+name: 🏥 Helpdesk CI Pipeline
+
+# 🚀 หุ่นยนต์จะทำงานทุกครั้งที่มีการ Push โค้ดขึ้นกิ่ง main
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  php-lint:
+    runs-on: ubuntu-latest # ใช้เครื่อง Linux จำลองบน Cloud
+
+    steps:
+    - name: 📂 Checkout Code
+      uses: actions/checkout@v3 # ดึงโค้ดจาก Repo เรามาวาง
+
+    - name: 🐘 Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+
+    - name: 🔍 Syntax Check (Linting)
+      # สั่งหุ่นยนต์ไล่เช็ค PHP ทุกไฟล์ ถ้าเจอสะกดผิดหรือลืมปิดเซมิโคลอน ให้ Error ทันที
+      run: find . -name "*.php" -exec php -l {} \;
+
+  docker-check:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 📂 Checkout Code
+      uses: actions/checkout@v3
+
+    - name: 🐳 Validate Docker Compose
+      # เช็คว่าไฟล์ docker-compose.yml ของเราเขียนโครงสร้างถูกต้องไหม
+      run: docker-compose config
