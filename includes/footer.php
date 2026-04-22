@@ -51,5 +51,70 @@ $(document).ready(function() {
     }
 </script>
 
+<?php if(isset($_SESSION['role']) && in_array($_SESSION['role'], ['it', 'admin'])): ?>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    
+    // กำหนด URL ของ API ที่เราเพิ่งสร้าง (แก้ path ให้ตรงกับโฟลเดอร์โปรเจกต์ของคุณ Nick)
+    const apiUrl = '<?php echo BASE_URL; ?>api/check_new_ticket.php';
+    
+    // ฟังก์ชันสำหรับเช็คงานซ่อมใหม่
+    async function checkNewTickets() {
+        try {
+            // 1. ใช้ Fetch API แอบดึงข้อมูลหลังบ้านแบบเงียบๆ
+            let response = await fetch(apiUrl);
+            let data = await response.json();
+            
+            if (data.status === 'success') {
+                let currentMaxId = data.max_id;
+                
+                // 2. ใช้ LocalStorage ของเบราว์เซอร์ เพื่อจำว่าช่างเห็นตั๋วใบที่เท่าไหร่แล้ว
+                let savedMaxId = localStorage.getItem('last_ticket_id');
+                
+                if (savedMaxId === null) {
+                    // ถ้าเพิ่งเปิดเว็บครั้งแรก ให้จำค่าล่าสุดไว้ก่อน
+                    localStorage.setItem('last_ticket_id', currentMaxId);
+                } 
+                else if (currentMaxId > parseInt(savedMaxId)) {
+                    // 🚨 โป๊ะเชะ! รหัสตั๋วล่าสุด มากกว่ารหัสที่จำไว้ แปลว่า "มีงานเข้าใหม่!" 🚨
+                    
+                    // อัปเดตความจำ
+                    localStorage.setItem('last_ticket_id', currentMaxId);
+                    
+                    // เล่นเสียงแจ้งเตือน (เตือนสติช่างไอที)
+                    let alertSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+                    alertSound.play().catch(e => console.log("เบราว์เซอร์บล็อกการเล่นเสียงอัตโนมัติ"));
+                    
+                    // เด้งแจ้งเตือนมุมขวาบนด้วย SweetAlert2 (Toast Mode)
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'warning',
+                        title: '🔔 งานแจ้งซ่อมด่วนเข้าใหม่!',
+                        html: `<b>หัวข้อ:</b> ${data.title}<br><b>จาก:</b> แผนก${data.dept}`,
+                        showConfirmButton: false,
+                        timer: 8000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                            // กดที่แจ้งเตือนเพื่อพาทะลุไปดูงานได้เลย
+                            toast.addEventListener('click', () => {
+                                window.location.href = '<?php echo BASE_URL; ?>modules/tickets/ticket_detail.php?id=' + currentMaxId;
+                            })
+                        }
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('ระบบเรดาร์ขัดข้อง:', error);
+        }
+    }
+
+    // 3. สั่งให้ฟังก์ชันนี้ทำงานอัตโนมัติ ทุกๆ 10 วินาที (10,000 มิลลิวินาที)
+    setInterval(checkNewTickets, 10000);
+});
+</script>
+<?php endif; ?>
 </body>
 </html>
